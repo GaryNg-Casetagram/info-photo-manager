@@ -10,12 +10,12 @@
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-bold text-gray-900">Expense Dashboard</h2>
-        <div class="flex space-x-4">
-          <button @click="openAddModal" class="btn btn-primary bg-primary hover:bg-primary/90">
-            <Plus class="h-4 w-4 mr-2" /> Add New Expense
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button @click="openAddModal" class="btn btn-primary btn-lg">
+            <Plus class="h-5 w-5 mr-2" /> Add New Expense
           </button>
-          <button @click="exportData" class="btn btn-outline">
-            <Download class="h-4 w-4 mr-2" /> Export Data
+          <button @click="exportData" class="btn btn-outline btn-lg">
+            <Download class="h-5 w-5 mr-2" /> Export Data
           </button>
         </div>
       </div>
@@ -50,24 +50,13 @@
           <Filter class="h-5 w-5 mr-2" /> Advanced Filters
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div class="filter-group date-range-group">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-            <div class="date-input-group flex items-center gap-2 p-2 bg-white border rounded-md min-h-[2.5rem]">
-              <input 
-                type="date" 
-                v-model="currentFilters.startDate" 
-                class="flex-1 border-0 outline-none"
-                placeholder="Start Date"
-              />
-              <span class="date-separator text-gray-500">to</span>
-              <input 
-                type="date" 
-                v-model="currentFilters.endDate" 
-                class="flex-1 border-0 outline-none"
-                placeholder="End Date"
-              />
-            </div>
-          </div>
+          <DateRangePicker
+            :start-date="currentFilters.startDate"
+            :end-date="currentFilters.endDate"
+            @update:start-date="currentFilters.startDate = $event"
+            @update:end-date="currentFilters.endDate = $event"
+            @change="handleDateRangeChange"
+          />
 
           <div class="filter-group">
             <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
@@ -98,9 +87,9 @@
             />
           </div>
         </div>
-        <div class="flex justify-end space-x-2 mt-6">
-          <button @click="clearFilters" class="btn btn-outline">Clear Filters</button>
-          <button @click="applyAdvancedFilters" class="btn btn-primary">Apply Filters</button>
+        <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+          <button @click="clearFilters" class="btn btn-outline btn-md">Clear Filters</button>
+          <button @click="applyAdvancedFilters" class="btn btn-primary btn-md">Apply Filters</button>
         </div>
       </div>
 
@@ -108,11 +97,11 @@
       <div class="bg-white p-6 rounded-lg shadow-sm border">
         <div class="flex justify-between items-center mb-6">
           <h3 class="text-lg font-semibold">Expense List</h3>
-          <div class="flex space-x-2">
-            <button @click="toggleGrouping" class="btn btn-outline">
+          <div class="flex flex-col sm:flex-row gap-2">
+            <button @click="toggleGrouping" class="btn btn-outline btn-md">
               <CalendarDays class="h-4 w-4 mr-2" /> Group by {{ currentGrouping === 'month' ? 'Week' : 'Month' }}
             </button>
-            <button @click="toggleView" class="btn btn-outline">
+            <button @click="toggleView" class="btn btn-outline btn-md">
               <LayoutGrid v-if="viewMode === 'table'" class="h-4 w-4 mr-2" />
               <List v-else class="h-4 w-4 mr-2" />
               {{ viewMode === 'table' ? 'Card View' : 'Table View' }}
@@ -156,7 +145,7 @@
                   </div>
                   <div class="text-right">
                     <p class="text-xl font-bold text-primary">${{ entry.amount.toFixed(2) }}</p>
-                    <div class="flex space-x-2 mt-2">
+                    <div class="flex gap-2 mt-3">
                       <button @click="openEditModal(entry)" class="btn btn-outline btn-sm">
                         <Edit class="h-4 w-4" />
                       </button>
@@ -258,9 +247,9 @@
               </div>
             </div>
 
-            <div class="flex justify-end space-x-2 pt-4 border-t">
-              <button type="button" @click="closeModal" class="btn btn-outline">Cancel</button>
-              <button type="submit" class="btn btn-primary">Save Expense</button>
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t">
+              <button type="button" @click="closeModal" class="btn btn-outline btn-md">Cancel</button>
+              <button type="submit" class="btn btn-primary btn-md">Save Expense</button>
             </div>
           </form>
         </div>
@@ -275,6 +264,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import Header from '../components/Header.vue'
 import Footer from '../components/Footer.vue'
 import ExpenseTable from '../components/ExpenseTable.vue'
+import DateRangePicker from '../components/DateRangePicker.vue'
 import { Plus, Upload, Search, Filter, Download, Trash2, Edit, CalendarDays, X, LayoutGrid, List } from 'lucide-vue-next'
 
 interface ExpenseEntry {
@@ -370,6 +360,12 @@ const loadExpenseCategories = async () => {
 }
 
 const applyAdvancedFilters = () => {
+  loadEntries()
+}
+
+const handleDateRangeChange = (range: { startDate: string; endDate: string }) => {
+  currentFilters.value.startDate = range.startDate
+  currentFilters.value.endDate = range.endDate
   loadEntries()
 }
 

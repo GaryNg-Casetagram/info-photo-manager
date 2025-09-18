@@ -12,14 +12,14 @@
             ensures you stay organized and compliant.
           </p>
 
-          <div class="flex flex-col sm:flex-row gap-4 mt-8">
-            <router-link to="/expenses" class="btn btn-primary btn-lg bg-black hover:bg-gray-800">
-              Start Managing Expenses
-            </router-link>
-            <button class="btn btn-outline btn-lg">
-              Learn More
-            </button>
-          </div>
+              <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                <router-link to="/expenses" class="btn btn-primary btn-xl">
+                  Start Managing Expenses
+                </router-link>
+                <button class="btn btn-outline btn-xl">
+                  Learn More
+                </button>
+              </div>
 
           <div class="grid grid-cols-3 gap-6 mt-12">
             <div class="text-center">

@@ -14,7 +14,7 @@
           <router-link to="/expenses" class="text-sm hover:text-primary transition-colors">Expenses</router-link>
           <a href="#reports" class="text-sm hover:text-primary transition-colors">Reports</a>
           <a href="#settings" class="text-sm hover:text-primary transition-colors">Settings</a>
-          <button class="btn btn-outline btn-sm">Sign In</button>
+          <button class="btn btn-outline btn-md">Sign In</button>
         </nav>
 
         <button
@@ -32,7 +32,7 @@
           <router-link to="/expenses" class="text-sm hover:text-primary transition-colors">Expenses</router-link>
           <a href="#reports" class="text-sm hover:text-primary transition-colors">Reports</a>
           <a href="#settings" class="text-sm hover:text-primary transition-colors">Settings</a>
-          <button class="btn btn-outline btn-sm w-fit">Sign In</button>
+          <button class="btn btn-outline btn-md w-fit">Sign In</button>
         </nav>
       </div>
     </div>
