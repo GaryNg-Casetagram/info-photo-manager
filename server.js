@@ -102,7 +102,7 @@ app.use((req, res, next) => {
 
 // Get all entries with files
 app.get('/api/entries', (req, res) => {
-    const { category, startDate, endDate } = req.query;
+    const { category, startDate, endDate, amountRange, search } = req.query;
     let query = `
         SELECT e.*, 
                GROUP_CONCAT(f.filename) as filenames,
@@ -128,6 +128,28 @@ app.get('/api/entries', (req, res) => {
     if (endDate) {
         conditions.push('e.created_at <= ?');
         params.push(endDate + ' 23:59:59');
+    }
+    
+    if (amountRange) {
+        switch (amountRange) {
+            case '0-50':
+                conditions.push('e.amount >= 0 AND e.amount <= 50');
+                break;
+            case '50-100':
+                conditions.push('e.amount > 50 AND e.amount <= 100');
+                break;
+            case '100-500':
+                conditions.push('e.amount > 100 AND e.amount <= 500');
+                break;
+            case '500+':
+                conditions.push('e.amount > 500');
+                break;
+        }
+    }
+    
+    if (search) {
+        conditions.push('(e.title LIKE ? OR e.description LIKE ?)');
+        params.push(`%${search}%`, `%${search}%`);
     }
     
     if (conditions.length > 0) {

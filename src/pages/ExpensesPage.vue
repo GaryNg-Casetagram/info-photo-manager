@@ -87,9 +87,8 @@
             />
           </div>
         </div>
-        <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+        <div class="flex justify-end mt-6">
           <button @click="clearFilters" class="btn btn-outline btn-md">Clear Filters</button>
-          <button @click="applyAdvancedFilters" class="btn btn-primary btn-md">Apply Filters</button>
         </div>
       </div>
 
@@ -110,7 +109,7 @@
         </div>
 
         <!-- Table View -->
-        <ExpenseTable 
+        <SortableTable 
           v-if="viewMode === 'table'"
           :entries="entries"
           @edit="openEditModal"
@@ -263,7 +262,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import Header from '../components/Header.vue'
 import Footer from '../components/Footer.vue'
-import ExpenseTable from '../components/ExpenseTable.vue'
+import SortableTable from '../components/SortableTable.vue'
 import DateRangePicker from '../components/DateRangePicker.vue'
 import { Plus, Upload, Search, Filter, Download, Trash2, Edit, CalendarDays, X, LayoutGrid, List } from 'lucide-vue-next'
 
@@ -357,10 +356,6 @@ const loadExpenseCategories = async () => {
   } catch (error: any) {
     console.error('Error loading expense categories:', error)
   }
-}
-
-const applyAdvancedFilters = () => {
-  loadEntries()
 }
 
 const handleDateRangeChange = (range: { startDate: string; endDate: string }) => {
