@@ -21,20 +21,25 @@
       </div>
 
       <!-- Summary Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white p-6 rounded-lg shadow-sm border">
           <h3 class="text-lg font-semibold mb-2">Total Expenses</h3>
           <p class="text-2xl font-bold">${{ overallTotal.toFixed(2) }}</p>
           <p class="text-sm text-gray-500">{{ entries.length }} entries</p>
         </div>
         <div class="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 class="text-lg font-semibold mb-2">Monthly Average</h3>
-          <p class="text-2xl font-bold">${{ monthlyAverage.toFixed(2) }}</p>
+          <h3 class="text-lg font-semibold mb-2">Daily Average</h3>
+          <p class="text-2xl font-bold">${{ dailyAverage.toFixed(2) }}</p>
           <p class="text-sm text-gray-500">Based on current filters</p>
         </div>
         <div class="bg-white p-6 rounded-lg shadow-sm border">
           <h3 class="text-lg font-semibold mb-2">Weekly Average</h3>
           <p class="text-2xl font-bold">${{ weeklyAverage.toFixed(2) }}</p>
+          <p class="text-sm text-gray-500">Based on current filters</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm border">
+          <h3 class="text-lg font-semibold mb-2">Monthly Average</h3>
+          <p class="text-2xl font-bold">${{ monthlyAverage.toFixed(2) }}</p>
           <p class="text-sm text-gray-500">Based on current filters</p>
         </div>
       </div>
@@ -295,7 +300,13 @@ interface FilterState {
 const entries = ref<ExpenseEntry[]>([])
 const categories = ref<string[]>([])
 const expenseCategories = ref<string[]>([])
-const currentFilters = ref<FilterState>({})
+const currentFilters = ref<FilterState>({
+  category: '',
+  amountRange: '',
+  search: '',
+  startDate: '',
+  endDate: ''
+})
 const isModalOpen = ref(false)
 const editingEntry = ref<ExpenseEntry | null>(null)
 const form = ref({
@@ -363,7 +374,13 @@ const applyAdvancedFilters = () => {
 }
 
 const clearFilters = () => {
-  currentFilters.value = {}
+  currentFilters.value = {
+    category: '',
+    amountRange: '',
+    search: '',
+    startDate: '',
+    endDate: ''
+  }
   loadEntries()
 }
 
@@ -592,6 +609,21 @@ const weeklyAverage = computed(() => {
   
   const weeks = Object.keys(weeklyTotals).length
   return weeks > 0 ? Object.values(weeklyTotals).reduce((sum, total) => sum + total, 0) / weeks : 0
+})
+
+const dailyAverage = computed(() => {
+  if (entries.value.length === 0) return 0
+  
+  // Group entries by day
+  const dailyTotals: { [key: string]: number } = {}
+  entries.value.forEach(entry => {
+    const date = new Date(entry.expense_date || entry.created_at)
+    const dayKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+    dailyTotals[dayKey] = (dailyTotals[dayKey] || 0) + entry.amount
+  })
+  
+  const days = Object.keys(dailyTotals).length
+  return days > 0 ? Object.values(dailyTotals).reduce((sum, total) => sum + total, 0) / days : 0
 })
 
 const sortedGroupKeys = computed(() => 
