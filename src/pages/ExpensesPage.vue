@@ -15,7 +15,7 @@
             <Plus class="h-5 w-5 mr-2" /> Add New Expense
           </button>
           <button @click="exportData" class="btn btn-outline btn-lg">
-            <Download class="h-5 w-5 mr-2" /> Export Data
+            <Download class="h-5 w-5 mr-2" /> Export Filtered Data
           </button>
         </div>
       </div>
@@ -517,18 +517,34 @@ const deleteEntry = async (id: number) => {
 
 const exportData = async () => {
   try {
-    const response = await fetch('/api/export')
+    // Build query parameters from current filters
+    const queryParams = new URLSearchParams()
+    if (currentFilters.value.category) queryParams.append('category', currentFilters.value.category)
+    if (currentFilters.value.amountRange) queryParams.append('amountRange', currentFilters.value.amountRange)
+    if (currentFilters.value.search) queryParams.append('search', currentFilters.value.search)
+    if (currentFilters.value.startDate) queryParams.append('startDate', currentFilters.value.startDate)
+    if (currentFilters.value.endDate) queryParams.append('endDate', currentFilters.value.endDate)
+    
+    const response = await fetch(`/api/export?${queryParams.toString()}`)
     if (!response.ok) throw new Error('Failed to export data')
     const blob = await response.blob()
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `expenses-${new Date().toISOString().split('T')[0]}.zip`
+    
+    // Create filename with filter info
+    let filename = `expenses-${new Date().toISOString().split('T')[0]}`
+    if (currentFilters.value.category || currentFilters.value.amountRange || currentFilters.value.search || currentFilters.value.startDate || currentFilters.value.endDate) {
+      filename += '-filtered'
+    }
+    filename += '.zip'
+    
+    a.download = filename
     document.body.appendChild(a)
     a.click()
     window.URL.revokeObjectURL(url)
     document.body.removeChild(a)
-    showAlert('Data exported successfully!', 'success')
+    showAlert('Filtered data exported successfully!', 'success')
   } catch (error: any) {
     console.error('Error exporting data:', error)
     showAlert('Error exporting data: ' + error.message, 'error')

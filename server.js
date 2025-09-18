@@ -333,7 +333,7 @@ app.delete('/api/entries/:id', (req, res) => {
 
 // Export entries as ZIP
 app.get('/api/export', (req, res) => {
-    const { startDate, endDate, category } = req.query;
+    const { startDate, endDate, category, amountRange, search } = req.query;
     
     let query = `
         SELECT e.*, f.filename, f.original_name, f.file_type
@@ -357,6 +357,28 @@ app.get('/api/export', (req, res) => {
     if (endDate) {
         conditions.push('e.created_at <= ?');
         params.push(endDate + ' 23:59:59');
+    }
+    
+    if (amountRange) {
+        switch (amountRange) {
+            case '0-50':
+                conditions.push('e.amount >= 0 AND e.amount <= 50');
+                break;
+            case '50-100':
+                conditions.push('e.amount > 50 AND e.amount <= 100');
+                break;
+            case '100-500':
+                conditions.push('e.amount > 100 AND e.amount <= 500');
+                break;
+            case '500+':
+                conditions.push('e.amount > 500');
+                break;
+        }
+    }
+    
+    if (search) {
+        conditions.push('(e.title LIKE ? OR e.description LIKE ?)');
+        params.push(`%${search}%`, `%${search}%`);
     }
     
     if (conditions.length > 0) {
