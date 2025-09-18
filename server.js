@@ -7,7 +7,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -346,7 +346,7 @@ app.get('/api/export', (req, res) => {
         // Create ZIP archive
         const archive = archiver('zip', { zlib: { level: 9 } });
         
-        res.attachment(`export_${moment().format('YYYY-MM-DD_HH-mm-ss')}.zip`);
+        res.attachment(`expense_manager_export_${moment().format('YYYY-MM-DD_HH-mm-ss')}.zip`);
         archive.pipe(res);
         
         // Group entries
@@ -367,30 +367,85 @@ app.get('/api/export', (req, res) => {
             }
         });
         
-        // Add entries to ZIP
+        // Create CSV content with proper headers (Amount moved to last column)
+        let csvContent = 'ID,Title,Description,Category,Expense Date,Created At,Updated At,File Count,File Names,Amount\n';
+        
+        let totalAmount = 0;
+        
+        // Add entries to ZIP and CSV
         entriesMap.forEach((entry, entryId) => {
-            const entryDir = `entry_${entryId}_${entry.title.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            // Format amount properly
+            const amount = entry.amount ? parseFloat(entry.amount).toFixed(2) : '0.00';
+            totalAmount += parseFloat(amount);
             
-            // Add entry info as JSON
-            const entryInfo = {
-                id: entry.id,
-                title: entry.title,
-                description: entry.description,
-                category: entry.category,
-                created_at: entry.created_at,
-                updated_at: entry.updated_at
+            // Format dates properly
+            const formatDate = (dateStr) => {
+                if (!dateStr) return '';
+                return new Date(dateStr).toLocaleDateString('en-CA') + ' ' + new Date(dateStr).toLocaleTimeString();
             };
             
-            archive.append(JSON.stringify(entryInfo, null, 2), { name: `${entryDir}/entry_info.json` });
+            // Add to CSV with proper escaping (Amount moved to last column)
+            const csvRow = [
+                entry.id,
+                `"${(entry.title || '').replace(/"/g, '""')}"`,
+                `"${(entry.description || '').replace(/"/g, '""')}"`,
+                `"${(entry.category || '').replace(/"/g, '""')}"`,
+                formatDate(entry.expense_date),
+                formatDate(entry.created_at),
+                formatDate(entry.updated_at),
+                entry.files.length,
+                `"${entry.files.map(f => f.original_name).join('; ')}"`,
+                amount
+            ].join(',');
+            csvContent += csvRow + '\n';
             
-            // Add files
+            // Add files to ZIP
             entry.files.forEach(file => {
                 const filePath = path.join(uploadsDir, file.filename);
                 if (fs.existsSync(filePath)) {
-                    archive.file(filePath, { name: `${entryDir}/files/${file.original_name}` });
+                    // Add files directly to root of ZIP for easier access
+                    archive.file(filePath, { name: `images/${file.original_name}` });
                 }
             });
         });
+        
+        // Add total row at the end
+        csvContent += `,,,,,,,,,TOTAL: ${totalAmount.toFixed(2)}\n`;
+        
+        // Add CSV file to ZIP
+        archive.append(csvContent, { name: 'expenses_export.csv' });
+        
+        // Add README file explaining the export structure
+        const readmeContent = `Expense Manager Export
+========================
+
+This ZIP file contains:
+
+1. expenses_export.csv - Complete expense data in CSV format
+   - ID: Unique expense identifier
+   - Title: Expense title
+   - Description: Expense description
+   - Category: Expense category
+   - Expense Date: When the expense occurred
+   - Created At: When the expense was added to the system
+   - Updated At: When the expense was last modified
+   - File Count: Number of attached files
+   - File Names: Names of all attached files (separated by semicolons)
+   - Amount: Expense amount (formatted to 2 decimal places) - Last column
+   - TOTAL: Sum of all amounts at the bottom of the file
+
+2. images/ folder - All receipt images and documents
+   - All uploaded files are stored here with their original names
+   - File names match those listed in the CSV File Names column
+
+Export Date: ${new Date().toLocaleString()}
+Total Expenses: ${entriesMap.size}
+Total Files: ${Array.from(entriesMap.values()).reduce((sum, entry) => sum + entry.files.length, 0)}
+
+For questions or support, contact your system administrator.
+`;
+        
+        archive.append(readmeContent, { name: 'README.txt' });
         
         archive.finalize();
     });
