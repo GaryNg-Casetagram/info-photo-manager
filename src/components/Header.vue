@@ -3,11 +3,14 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center space-x-4">
-          <h1 class="font-bold text-xl">📊 Expense Manager</h1>
-          <span class="text-muted-foreground text-sm hidden sm:block">Professional Receipt Tracking</span>
+          <router-link to="/" class="flex items-center space-x-4 hover:opacity-80 transition-opacity">
+            <h1 class="font-bold text-xl">📊 Expense Manager</h1>
+            <span class="text-muted-foreground text-sm hidden sm:block">Professional Receipt Tracking</span>
+          </router-link>
         </div>
 
         <nav class="hidden md:flex items-center space-x-8">
+          <router-link to="/" class="text-sm hover:text-primary transition-colors">Home</router-link>
           <router-link to="/expenses" class="text-sm hover:text-primary transition-colors">Expenses</router-link>
           <a href="#reports" class="text-sm hover:text-primary transition-colors">Reports</a>
           <a href="#settings" class="text-sm hover:text-primary transition-colors">Settings</a>
@@ -25,6 +28,7 @@
 
       <div v-if="isMenuOpen" class="md:hidden py-4 border-t">
         <nav class="flex flex-col space-y-4">
+          <router-link to="/" class="text-sm hover:text-primary transition-colors">Home</router-link>
           <router-link to="/expenses" class="text-sm hover:text-primary transition-colors">Expenses</router-link>
           <a href="#reports" class="text-sm hover:text-primary transition-colors">Reports</a>
           <a href="#settings" class="text-sm hover:text-primary transition-colors">Settings</a>
