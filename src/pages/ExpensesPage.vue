@@ -29,12 +29,12 @@
         </div>
         <div class="bg-white p-6 rounded-lg shadow-sm border">
           <h3 class="text-lg font-semibold mb-2">Monthly Average</h3>
-          <p class="text-2xl font-bold">$0.00</p>
+          <p class="text-2xl font-bold">${{ monthlyAverage.toFixed(2) }}</p>
           <p class="text-sm text-gray-500">Based on current filters</p>
         </div>
         <div class="bg-white p-6 rounded-lg shadow-sm border">
           <h3 class="text-lg font-semibold mb-2">Weekly Average</h3>
-          <p class="text-2xl font-bold">$0.00</p>
+          <p class="text-2xl font-bold">${{ weeklyAverage.toFixed(2) }}</p>
           <p class="text-sm text-gray-500">Based on current filters</p>
         </div>
       </div>
@@ -561,6 +561,39 @@ const calculateTotals = (groupedEntries: { [key: string]: ExpenseEntry[] }) => {
 const grouped = computed(() => groupEntries(entries.value))
 const totals = computed(() => calculateTotals(grouped.value))
 const overallTotal = computed(() => entries.value.reduce((sum, entry) => sum + entry.amount, 0))
+
+const monthlyAverage = computed(() => {
+  if (entries.value.length === 0) return 0
+  
+  // Group entries by month
+  const monthlyTotals: { [key: string]: number } = {}
+  entries.value.forEach(entry => {
+    const date = new Date(entry.expense_date || entry.created_at)
+    const monthKey = `${date.getFullYear()}-${date.getMonth()}`
+    monthlyTotals[monthKey] = (monthlyTotals[monthKey] || 0) + entry.amount
+  })
+  
+  const months = Object.keys(monthlyTotals).length
+  return months > 0 ? Object.values(monthlyTotals).reduce((sum, total) => sum + total, 0) / months : 0
+})
+
+const weeklyAverage = computed(() => {
+  if (entries.value.length === 0) return 0
+  
+  // Group entries by week
+  const weeklyTotals: { [key: string]: number } = {}
+  entries.value.forEach(entry => {
+    const date = new Date(entry.expense_date || entry.created_at)
+    const startOfWeek = new Date(date)
+    startOfWeek.setDate(date.getDate() - date.getDay()) // Sunday
+    const weekKey = `${startOfWeek.getFullYear()}-W${Math.ceil((startOfWeek.getDate() + startOfWeek.getDay()) / 7)}`
+    weeklyTotals[weekKey] = (weeklyTotals[weekKey] || 0) + entry.amount
+  })
+  
+  const weeks = Object.keys(weeklyTotals).length
+  return weeks > 0 ? Object.values(weeklyTotals).reduce((sum, total) => sum + total, 0) / weeks : 0
+})
+
 const sortedGroupKeys = computed(() => 
   Object.keys(grouped.value).sort((a, b) => 
     new Date(b.split(' - ')[0]).getTime() - new Date(a.split(' - ')[0]).getTime()
