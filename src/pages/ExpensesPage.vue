@@ -66,7 +66,7 @@
 
           <div class="filter-group">
             <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-            <select v-model="currentFilters.category" class="p-2 border rounded-md min-h-[2.5rem] w-full">
+            <select v-model="currentFilters.category" class="form-select">
               <option value="">All Categories</option>
               <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
             </select>
@@ -74,7 +74,7 @@
 
           <div class="filter-group">
             <label class="block text-sm font-medium text-gray-700 mb-2">Amount Range</label>
-            <select v-model="currentFilters.amountRange" class="p-2 border rounded-md min-h-[2.5rem] w-full">
+            <select v-model="currentFilters.amountRange" class="form-select">
               <option value="">All Amounts</option>
               <option value="0-50">$0 - $50</option>
               <option value="50-100">$50 - $100</option>
@@ -89,7 +89,7 @@
               type="text" 
               v-model="currentFilters.search" 
               placeholder="Search by title or description"
-              class="p-2 border rounded-md min-h-[2.5rem] w-full"
+              class="form-input"
             />
           </div>
         </div>
@@ -179,7 +179,7 @@
                 <input 
                   v-model="form.title" 
                   required 
-                  class="w-full p-2 border rounded-md"
+                  class="form-input"
                 />
               </div>
               <div class="space-y-2">
@@ -189,7 +189,7 @@
                   type="number" 
                   step="0.01" 
                   required 
-                  class="w-full p-2 border rounded-md"
+                  class="form-input"
                 />
               </div>
             </div>
@@ -198,14 +198,14 @@
               <label class="block text-sm font-medium text-gray-700">Description</label>
               <textarea 
                 v-model="form.description" 
-                class="w-full p-2 border rounded-md h-20"
+                class="form-textarea"
               />
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-2">
                 <label class="block text-sm font-medium text-gray-700">Category</label>
-                <select v-model="form.category" required class="w-full p-2 border rounded-md">
+                <select v-model="form.category" required class="form-select">
                   <option value="">Select a category</option>
                   <option v-for="cat in expenseCategories" :key="cat" :value="cat">{{ cat }}</option>
                 </select>
@@ -215,7 +215,7 @@
                 <input 
                   v-model="form.expense_date" 
                   type="date" 
-                  class="w-full p-2 border rounded-md"
+                  class="form-input"
                 />
               </div>
             </div>
