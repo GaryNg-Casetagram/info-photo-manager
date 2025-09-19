@@ -501,6 +501,57 @@ For questions or support, contact your system administrator.
     });
 });
 
+// Stats endpoint for settings page
+app.get('/api/stats', (req, res) => {
+    db.get('SELECT COUNT(*) as totalEntries FROM entries', (err, row) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        
+        // Get database file size
+        const dbPath = path.join(__dirname, 'info_photos.db');
+        let dbSize = '0 KB';
+        
+        try {
+            const stats = fs.statSync(dbPath);
+            const bytes = stats.size;
+            if (bytes < 1024) {
+                dbSize = bytes + ' B';
+            } else if (bytes < 1024 * 1024) {
+                dbSize = Math.round(bytes / 1024) + ' KB';
+            } else {
+                dbSize = Math.round(bytes / (1024 * 1024)) + ' MB';
+            }
+        } catch (error) {
+            console.error('Error getting database size:', error);
+        }
+        
+        res.json({
+            totalEntries: row.totalEntries,
+            databaseSize: dbSize,
+            lastBackup: 'Never' // In a real app, this would be tracked
+        });
+    });
+});
+
+// Export report endpoint (placeholder)
+app.get('/api/export-report', (req, res) => {
+    const { type } = req.query;
+    
+    // In a real app, this would generate PDF reports
+    // For now, we'll return a simple text response
+    const reportData = {
+        type: type || 'summary',
+        generatedAt: new Date().toISOString(),
+        message: `Report type: ${type} - This would be a PDF report in a real application`
+    };
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="report-${type}-${new Date().toISOString().split('T')[0]}.json"`);
+    res.json(reportData);
+});
+
 // Error handling middleware
 app.use((error, req, res, next) => {
     if (error instanceof multer.MulterError) {

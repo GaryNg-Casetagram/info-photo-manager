@@ -9,13 +9,13 @@
           </router-link>
         </div>
 
-        <nav class="hidden md:flex items-center space-x-8">
-          <router-link to="/" class="text-sm hover:text-primary transition-colors">Home</router-link>
-          <router-link to="/expenses" class="text-sm hover:text-primary transition-colors">Expenses</router-link>
-          <a href="#reports" class="text-sm hover:text-primary transition-colors">Reports</a>
-          <a href="#settings" class="text-sm hover:text-primary transition-colors">Settings</a>
-          <button class="btn btn-outline btn-md">Sign In</button>
-        </nav>
+            <nav class="hidden md:flex items-center space-x-8">
+              <router-link to="/" class="text-sm hover:text-primary transition-colors">Home</router-link>
+              <router-link to="/expenses" class="text-sm hover:text-primary transition-colors">Expenses</router-link>
+              <router-link to="/reports" class="text-sm hover:text-primary transition-colors">Reports</router-link>
+              <router-link to="/settings" class="text-sm hover:text-primary transition-colors">Settings</router-link>
+              <button class="btn btn-outline btn-md">Sign In</button>
+            </nav>
 
         <button
           class="md:hidden"
@@ -26,15 +26,15 @@
         </button>
       </div>
 
-      <div v-if="isMenuOpen" class="md:hidden py-4 border-t">
-        <nav class="flex flex-col space-y-4">
-          <router-link to="/" class="text-sm hover:text-primary transition-colors">Home</router-link>
-          <router-link to="/expenses" class="text-sm hover:text-primary transition-colors">Expenses</router-link>
-          <a href="#reports" class="text-sm hover:text-primary transition-colors">Reports</a>
-          <a href="#settings" class="text-sm hover:text-primary transition-colors">Settings</a>
-          <button class="btn btn-outline btn-md w-fit">Sign In</button>
-        </nav>
-      </div>
+          <div v-if="isMenuOpen" class="md:hidden py-4 border-t">
+            <nav class="flex flex-col space-y-4">
+              <router-link to="/" class="text-sm hover:text-primary transition-colors">Home</router-link>
+              <router-link to="/expenses" class="text-sm hover:text-primary transition-colors">Expenses</router-link>
+              <router-link to="/reports" class="text-sm hover:text-primary transition-colors">Reports</router-link>
+              <router-link to="/settings" class="text-sm hover:text-primary transition-colors">Settings</router-link>
+              <button class="btn btn-outline btn-md w-fit">Sign In</button>
+            </nav>
+          </div>
     </div>
   </header>
 </template>

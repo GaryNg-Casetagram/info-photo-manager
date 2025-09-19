@@ -6,13 +6,17 @@ import './index.css'
 // Import pages
 import HomePage from './pages/HomePage.vue'
 import ExpensesPage from './pages/ExpensesPage.vue'
+import ReportsPage from './pages/ReportsPage.vue'
+import SettingsPage from './pages/SettingsPage.vue'
 
 // Create router
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', component: HomePage },
-    { path: '/expenses', component: ExpensesPage }
+    { path: '/expenses', component: ExpensesPage },
+    { path: '/reports', component: ReportsPage },
+    { path: '/settings', component: SettingsPage }
   ]
 })
 
