@@ -144,7 +144,7 @@
 
               <!-- Expense Cards -->
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div v-for="entry in grouped[groupKey]" :key="entry.id" class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors shadow-sm hover:shadow-md">
+                <div v-for="entry in grouped[groupKey]" :key="entry.id" class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors shadow-sm hover:shadow-md flex flex-col">
                   <!-- Card Header -->
                   <div class="p-4 border-b border-gray-100">
                     <div class="flex justify-between items-start mb-2">
@@ -155,7 +155,7 @@
                   </div>
 
                   <!-- Card Body -->
-                  <div class="p-4">
+                  <div class="p-4 flex-1 flex flex-col">
                     <div class="flex items-center justify-between mb-3">
                       <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         {{ entry.category }}
@@ -191,8 +191,11 @@
                       </div>
                     </div>
 
+                    <!-- Spacer to push buttons to bottom -->
+                    <div class="flex-1"></div>
+
                     <!-- Action Buttons -->
-                    <div class="flex gap-2 pt-3 border-t border-gray-100">
+                    <div class="flex gap-2 pt-3 border-t border-gray-100 mt-auto">
                       <button @click="openEditModal(entry)" class="btn btn-outline btn-sm flex-1">
                         <Edit class="h-3 w-3 mr-1" />
                         Edit
