@@ -118,38 +118,88 @@
 
         <!-- Card View (Grouped) -->
         <div v-else>
-          <div v-if="Object.keys(grouped).length === 0" class="text-center text-gray-500 py-8">
-            No expenses found for the selected filters.
+          <div v-if="Object.keys(grouped).length === 0" class="text-center text-gray-500 py-12">
+            <div class="text-6xl mb-4">📊</div>
+            <h3 class="text-lg font-medium mb-2">No expenses found</h3>
+            <p class="text-sm">Try adjusting your filters or add a new expense</p>
           </div>
 
           <div v-else>
             <div v-for="groupKey in sortedGroupKeys" :key="groupKey" class="mb-8 last:mb-0">
-              <h3 class="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
-                {{ groupKey }}
-                <span class="text-base font-medium text-gray-600">
-                  Subtotal: ${{ totals[groupKey].subtotal.toFixed(2) }} ({{ totals[groupKey].count }} entries)
-                </span>
-              </h3>
-              <div class="space-y-4">
-                <div v-for="entry in grouped[groupKey]" :key="entry.id" class="flex items-center justify-between bg-white p-4 rounded-lg shadow-sm border">
-                  <div class="flex-1">
-                    <p class="text-lg font-medium text-gray-900">{{ entry.title }}</p>
-                    <p class="text-sm text-gray-600">{{ entry.description }}</p>
-                    <span class="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                      {{ entry.category }}
-                    </span>
-                    <p class="text-xs text-gray-500 mt-1">
-                      {{ entry.expense_date ? `Expense Date: ${new Date(entry.expense_date).toLocaleDateString()}` : '' }} | Added: {{ new Date(entry.created_at).toLocaleDateString() }}
+              <!-- Group Header -->
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4 border border-blue-100">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <h3 class="text-xl font-bold text-gray-800">{{ groupKey }}</h3>
+                    <p class="text-sm text-gray-600 mt-1">
+                      {{ totals[groupKey].count }} {{ totals[groupKey].count === 1 ? 'expense' : 'expenses' }}
                     </p>
                   </div>
                   <div class="text-right">
-                    <p class="text-xl font-bold text-primary">${{ entry.amount.toFixed(2) }}</p>
-                    <div class="flex gap-2 mt-3">
-                      <button @click="openEditModal(entry)" class="btn btn-outline btn-sm">
-                        <Edit class="h-4 w-4" />
+                    <p class="text-2xl font-bold text-blue-600">${{ totals[groupKey].subtotal.toFixed(2) }}</p>
+                    <p class="text-sm text-gray-500">Subtotal</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Expense Cards -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div v-for="entry in grouped[groupKey]" :key="entry.id" class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors shadow-sm hover:shadow-md">
+                  <!-- Card Header -->
+                  <div class="p-4 border-b border-gray-100">
+                    <div class="flex justify-between items-start mb-2">
+                      <h4 class="font-semibold text-gray-900 text-sm leading-tight">{{ entry.title }}</h4>
+                      <span class="text-lg font-bold text-green-600">${{ entry.amount.toFixed(2) }}</span>
+                    </div>
+                    <p v-if="entry.description" class="text-xs text-gray-600 line-clamp-2">{{ entry.description }}</p>
+                  </div>
+
+                  <!-- Card Body -->
+                  <div class="p-4">
+                    <div class="flex items-center justify-between mb-3">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {{ entry.category }}
+                      </span>
+                      <span class="text-xs text-gray-500 font-mono">#{{ entry.id }}</span>
+                    </div>
+
+                    <!-- Date Info -->
+                    <div class="space-y-1 mb-4">
+                      <div v-if="entry.expense_date" class="flex items-center text-xs text-gray-600">
+                        <CalendarDays class="h-3 w-3 mr-1" />
+                        Expense: {{ formatCardDate(entry.expense_date) }}
+                      </div>
+                      <div class="flex items-center text-xs text-gray-500">
+                        <CalendarDays class="h-3 w-3 mr-1" />
+                        Added: {{ formatCardDate(entry.created_at) }}
+                      </div>
+                    </div>
+
+                    <!-- File Attachments -->
+                    <div v-if="entry.files && entry.files.length > 0" class="mb-4">
+                      <div class="flex items-center text-xs text-gray-600 mb-2">
+                        <Upload class="h-3 w-3 mr-1" />
+                        {{ entry.files.length }} {{ entry.files.length === 1 ? 'attachment' : 'attachments' }}
+                      </div>
+                      <div class="flex flex-wrap gap-1">
+                        <span v-for="file in entry.files.slice(0, 3)" :key="file.filename" class="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+                          {{ file.original_name }}
+                        </span>
+                        <span v-if="entry.files.length > 3" class="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+                          +{{ entry.files.length - 3 }} more
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-2 pt-3 border-t border-gray-100">
+                      <button @click="openEditModal(entry)" class="btn btn-outline btn-sm flex-1">
+                        <Edit class="h-3 w-3 mr-1" />
+                        Edit
                       </button>
-                      <button @click="deleteEntry(entry.id)" class="btn btn-destructive btn-sm">
-                        <Trash2 class="h-4 w-4" />
+                      <button @click="deleteEntry(entry.id)" class="btn btn-destructive btn-sm flex-1">
+                        <Trash2 class="h-3 w-3 mr-1" />
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -559,11 +609,28 @@ const groupEntries = (entries: ExpenseEntry[]) => {
     if (currentGrouping.value === 'month') {
       key = date.toLocaleString('en-US', { year: 'numeric', month: 'long' })
     } else { // week
+      // Get start of week (Monday)
       const startOfWeek = new Date(date)
-      startOfWeek.setDate(date.getDate() - date.getDay()) // Sunday
+      const day = startOfWeek.getDay()
+      const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1) // Adjust when day is Sunday
+      startOfWeek.setDate(diff)
+      
+      // Get end of week (Sunday)
       const endOfWeek = new Date(startOfWeek)
-      endOfWeek.setDate(startOfWeek.getDate() + 6) // Saturday
-      key = `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+      endOfWeek.setDate(startOfWeek.getDate() + 6)
+      
+      // Format the week range
+      const startMonth = startOfWeek.toLocaleDateString('en-US', { month: 'short' })
+      const startDay = startOfWeek.getDate()
+      const endMonth = endOfWeek.toLocaleDateString('en-US', { month: 'short' })
+      const endDay = endOfWeek.getDate()
+      const year = startOfWeek.getFullYear()
+      
+      if (startOfWeek.getMonth() === endOfWeek.getMonth()) {
+        key = `${startMonth} ${startDay}-${endDay}, ${year}`
+      } else {
+        key = `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${year}`
+      }
     }
     if (!grouped[key]) {
       grouped[key] = []
@@ -633,11 +700,33 @@ const dailyAverage = computed(() => {
   return days > 0 ? Object.values(dailyTotals).reduce((sum, total) => sum + total, 0) / days : 0
 })
 
-const sortedGroupKeys = computed(() => 
-  Object.keys(grouped.value).sort((a, b) => 
-    new Date(b.split(' - ')[0]).getTime() - new Date(a.split(' - ')[0]).getTime()
-  )
-)
+const formatCardDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+}
+
+const sortedGroupKeys = computed(() => {
+  const keys = Object.keys(grouped.value)
+  return keys.sort((a, b) => {
+    // For month grouping, sort by date
+    if (currentGrouping.value === 'month') {
+      return new Date(b).getTime() - new Date(a).getTime()
+    }
+    // For week grouping, extract the start date and sort
+    const aStart = a.split(',')[0].split(' ')[1] // Extract day from "Jan 1-7, 2024"
+    const bStart = b.split(',')[0].split(' ')[1]
+    const aDate = new Date(a.replace(/^[^,]+, /, '')) // Extract year
+    const bDate = new Date(b.replace(/^[^,]+, /, ''))
+    aDate.setMonth(a.split(' ')[0] === 'Jan' ? 0 : a.split(' ')[0] === 'Feb' ? 1 : 2) // Simplified month mapping
+    bDate.setMonth(b.split(' ')[0] === 'Jan' ? 0 : b.split(' ')[0] === 'Feb' ? 1 : 2)
+    aDate.setDate(parseInt(aStart.split('-')[0]))
+    bDate.setDate(parseInt(bStart.split('-')[0]))
+    return bDate.getTime() - aDate.getTime()
+  })
+})
 
 onMounted(() => {
   loadEntries()
